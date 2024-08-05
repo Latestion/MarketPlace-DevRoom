@@ -1,0 +1,4 @@
+sql:
+  url: "jdbc:mysql://localhost/stat_tracker"
+  user: "root"
+  password: ""

@@ -1,0 +1,4 @@
+name: MarketPlace
+version: '${version}'
+main: dev.latestion.marketplace.MarketPlace
+api-version: '1.20'
