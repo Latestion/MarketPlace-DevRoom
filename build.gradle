@@ -71,6 +71,9 @@ shadowJar {
     // Relocate (shade) the Redis package
     relocate 'redis.clients.jedis', 'your.package.redis.clients.jedis'
     archiveClassifier.set('all')
+    destinationDirectory.set(file('C:\\Users\\User\\Desktop\\Dungeons\\plugins'))
+    archiveFileName.set("MarketPlace-${version}.jar")
+
 }
 
 build.dependsOn shadowJar

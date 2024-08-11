@@ -2,3 +2,7 @@ sql:
   url: "jdbc:mysql://localhost/stat_tracker"
   user: "root"
   password: ""
+
+redis:
+  host: "127.0.0.1"
+  port: "6379"
