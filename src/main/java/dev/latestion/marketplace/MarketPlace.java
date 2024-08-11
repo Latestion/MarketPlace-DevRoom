@@ -6,13 +6,21 @@ import dev.latestion.marketplace.commands.SellCmd;
 import dev.latestion.marketplace.manager.Manager;
 import dev.latestion.marketplace.utils.MessageManager;
 import dev.latestion.marketplace.utils.item.Base64ItemStack;
+import lombok.Getter;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MarketPlace extends JavaPlugin {
 
     private static MarketPlace instance;
+    @Getter
+    private Economy economy;
+
 
     public static MarketPlace get() {
         return instance;
@@ -27,6 +35,15 @@ public final class MarketPlace extends JavaPlugin {
 
         new MessageManager();
         manager = new Manager(this);
+
+        RegisteredServiceProvider<Economy> rsp =
+                Bukkit.getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            System.out.println("No Eco Found!");
+        }
+        else {
+            economy = rsp.getProvider();
+        }
 
         new SellCmd().registerPublicCommand();
         new MarketPlaceCmd().registerPublicCommand();
@@ -44,8 +61,8 @@ public final class MarketPlace extends JavaPlugin {
 
     private Manager manager;
 
-    public void handleSell(Player player, ItemStack item, long price) {
-        manager.getRedis().addItem(player.getUniqueId(), Base64ItemStack.encode(item), price);
+    public void handleSell(OfflinePlayer player, ItemStack item, long price) {
+        manager.addItem(player, item, price);
     }
 
     public void handleShop(Player player) {

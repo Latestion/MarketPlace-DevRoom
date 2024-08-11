@@ -1,4 +1,4 @@
-package dev.latestion.marketplace.manager;
+package dev.latestion.marketplace.manager.data;
 
 import lombok.Data;
 import org.bukkit.inventory.ItemStack;

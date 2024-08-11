@@ -1,9 +1,11 @@
-package dev.latestion.marketplace.manager;
+package dev.latestion.marketplace.manager.data;
 
+import dev.latestion.marketplace.MarketPlace;
+import dev.latestion.marketplace.manager.Manager;
 import dev.latestion.marketplace.utils.data.Tuple;
 import dev.latestion.marketplace.utils.item.Base64ItemStack;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import lombok.extern.java.Log;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -16,13 +18,13 @@ import java.util.UUID;
 public class RedisDatabase {
 
     private final JedisPool jedisPool;
-    private Map<UUID, Tuple<UUID, ItemStack, Double>> map = new HashMap<>();
+    private Map<UUID, Tuple<UUID, ItemStack, Long>> map = new HashMap<>();
 
     public RedisDatabase(String host, int port) {
         this.jedisPool = new JedisPool(new JedisPoolConfig(), host, port);
     }
 
-    public void addItem(UUID player, String itemStack, double price) {
+    public UUID addItem(UUID player, String itemStack, long price) {
         UUID uuid = UUID.randomUUID();
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.hset("market_items", uuid.toString(), itemStack);
@@ -33,18 +35,19 @@ public class RedisDatabase {
             System.out.println(itemStack.length());
             map.put(uuid, new Tuple<>(player, Base64ItemStack.decode(itemStack), price));
         }
+        return uuid;
     }
 
-    public Map<UUID, Tuple<UUID, ItemStack, Double>> getAllItems() {
+    public Map<UUID, Tuple<UUID, ItemStack, Long>> getAllItems() {
         try (Jedis jedis = jedisPool.getResource()) {
             Map<String, String> items = jedis.hgetAll("market_items");
-            Map<UUID, Tuple<UUID, ItemStack, Double>> result = new HashMap<>();
+            Map<UUID, Tuple<UUID, ItemStack, Long>> result = new HashMap<>();
             for (Map.Entry<String, String> entry : items.entrySet()) {
                 result.put(UUID.fromString(entry.getKey()),
                         new Tuple<>(
                                 UUID.fromString(jedis.hget("market-owner", entry.getKey())),
                                 Base64ItemStack.decode(entry.getValue()),
-                                Double.parseDouble(jedis.hget("market_price", entry.getKey()))
+                                Long.parseLong(jedis.hget("market_price", entry.getKey()))
                         )
                 );
             }
@@ -73,9 +76,10 @@ public class RedisDatabase {
         }
     }
 
-    public void loadFromSQL(SqlDatabase sql) {
-        sql.getAllItems().forEach((uuid, tuple) ->
-                addItem(uuid, tuple.b(), tuple.c()));
-        sql.clearItemDatabase();
+    public void loadFromSQL(Manager manager) {
+        manager.getSql().getAllItems().forEach((uuid, tuple) ->
+               manager.addItem(Bukkit.getOfflinePlayer(uuid), Base64ItemStack.decode(tuple.b())
+                       , tuple.c()));
+        manager.getSql().clearItemDatabase();
     }
 }

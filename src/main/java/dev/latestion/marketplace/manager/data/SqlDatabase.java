@@ -1,10 +1,9 @@
-package dev.latestion.marketplace.manager;
+package dev.latestion.marketplace.manager.data;
 
 import dev.latestion.marketplace.MarketPlace;
 import dev.latestion.marketplace.utils.data.Tuple;
 import dev.latestion.marketplace.utils.item.Base64ItemStack;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.*;
@@ -26,13 +25,13 @@ public class SqlDatabase {
 
         FileConfiguration config = MarketPlace.get().getConfig();
 
-        this.connection = DriverManager.getConnection(
-                config.getString("sql.url", ""),
-                config.getString("sql.user", ""),
-                config.getString("sql.password", "")
-        );
+        this.connection = DriverManager.getConnection("jdbc:mysql://" +
+                        config.getString("sql.host") + ":" +
+                        config.getInt("sql.port") + "/" +
+                        config.getString("sql.database") + "?useSSL=false",
+                config.getString("sql.user"), config.getString("sql.password"));
 
-        System.out.println("Connected to sql-database.");
+        System.out.println("Connected to sql-database: " + (connection == null));
         return connection;
 
     }
@@ -57,7 +56,7 @@ public class SqlDatabase {
                 + "main_uuid CHAR(36) NOT NULL, "
                 + "inner_uuid CHAR(36) NOT NULL, "
                 + "item_stack TEXT NOT NULL, "
-                + "value DOUBLE NOT NULL, "
+                + "value BIGINT NOT NULL, "
                 + "PRIMARY KEY (main_uuid, inner_uuid)"
                 + ");";
 
@@ -65,25 +64,25 @@ public class SqlDatabase {
         statement.close();
     }
 
-    public void insertItemData(Map<UUID, Tuple<UUID, ItemStack, Double>> data) {
+    public void insertItemData(Map<UUID, Tuple<UUID, ItemStack, Long>> data) {
         String insertSQL = "INSERT INTO marketplace_items (main_uuid, inner_uuid, item_stack, value) "
                 + "VALUES (?, ?, ?, ?) "
                 + "ON DUPLICATE KEY UPDATE item_stack = VALUES(item_stack), value = VALUES(value);";
 
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(insertSQL)) {
 
-            for (Map.Entry<UUID, Tuple<UUID, ItemStack, Double>> entry : data.entrySet()) {
+            for (Map.Entry<UUID, Tuple<UUID, ItemStack, Long>> entry : data.entrySet()) {
 
                 UUID mainUUID = entry.getKey();
-                Tuple<UUID, ItemStack, Double> tuple = entry.getValue();
+                Tuple<UUID, ItemStack, Long> tuple = entry.getValue();
                 UUID innerUUID = tuple.a();
                 ItemStack itemStack = tuple.b();
-                Double value = tuple.c();
+                long value = tuple.c();
 
                 preparedStatement.setString(1, mainUUID.toString());
                 preparedStatement.setString(2, innerUUID.toString());
                 preparedStatement.setString(3, Base64ItemStack.encode(itemStack));
-                preparedStatement.setDouble(4, value);
+                preparedStatement.setLong(4, value);
 
                 preparedStatement.addBatch(); // Add to batch
             }
@@ -96,8 +95,8 @@ public class SqlDatabase {
         }
     }
 
-    public Map<UUID, Tuple<UUID, String, Double>> getAllItems() {
-        Map<UUID, Tuple<UUID, String, Double>> data = new HashMap<>();
+    public Map<UUID, Tuple<UUID, String, Long>> getAllItems() {
+        Map<UUID, Tuple<UUID, String, Long>> data = new HashMap<>();
         String querySQL = "SELECT main_uuid, inner_uuid, item_stack, value FROM marketplace_items;";
 
         try (PreparedStatement preparedStatement = getConnection().prepareStatement(querySQL);
@@ -107,10 +106,10 @@ public class SqlDatabase {
                 UUID mainUUID = UUID.fromString(resultSet.getString("main_uuid"));
                 UUID innerUUID = UUID.fromString(resultSet.getString("inner_uuid"));
                 String base64ItemStack = resultSet.getString("item_stack");
-                Double value = resultSet.getDouble("value");
+                Long value = resultSet.getLong("value");
 
 
-                Tuple<UUID, String, Double> tuple = new Tuple<>(innerUUID, base64ItemStack, value);
+                Tuple<UUID, String, Long> tuple = new Tuple<>(innerUUID, base64ItemStack, value);
                 data.put(mainUUID, tuple);
             }
 
