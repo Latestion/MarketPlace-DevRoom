@@ -1,10 +1,8 @@
 package dev.latestion.marketplace.manager.data;
 
-import dev.latestion.marketplace.MarketPlace;
 import dev.latestion.marketplace.manager.Manager;
 import dev.latestion.marketplace.utils.data.Tuple;
 import dev.latestion.marketplace.utils.item.Base64ItemStack;
-import lombok.extern.java.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import redis.clients.jedis.Jedis;

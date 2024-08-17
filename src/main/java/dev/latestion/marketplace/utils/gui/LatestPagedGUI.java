@@ -56,11 +56,12 @@ public class LatestPagedGUI implements Iterable<LatestGUI> {
         if (gui.addItem(item, consumer)) {
             return;
         }
-        createPage();
+        gui.setNextPageArrow();
+        gui = createPage();
         addItem(item, consumer);
     }
 
     public void removeItem(@NotNull ItemStack item) {
-        // TODO:
+        System.out.println("Remove this somehow!");
     }
 }

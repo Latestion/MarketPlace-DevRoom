@@ -70,14 +70,18 @@ public class Manager {
 
         gui.addItem(item, (player) -> {
 
+            /*
             if (player.getUniqueId().equals(owner.getUniqueId())) {
                 // TODO: Message
                 return;
             }
+             */
+
             if (!plugin.getEconomy().has(player, price)) {
                 // TODO: Message
                 return;
             }
+
             if (player.getInventory().firstEmpty() == -1) {
                 // TODO: Message
                 return;

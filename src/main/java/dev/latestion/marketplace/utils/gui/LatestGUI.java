@@ -20,9 +20,9 @@ public class LatestGUI {
     @Setter private boolean ignoreEdges = false, ignoreBottomRow = true;
     private final Inventory inv;
 
-    private LatestPagedGUI paged = null;
+    @Getter private LatestPagedGUI paged = null;
 
-    private final int size, closeSlot;
+    @Getter private final int size, closeSlot;
 
     public LatestGUI(Component title, int rows) {
         size = rows * 9;
@@ -34,7 +34,7 @@ public class LatestGUI {
     int counter = 0;
     public boolean addItem(ItemStack item, Consumer<Player> consumer) {
 
-        if (counter == size - (ignoreBottomRow ? 0 : 9)) {
+        if (counter == size - (ignoreBottomRow ? 9 : 0)) {
             return false;
         }
 
@@ -57,6 +57,7 @@ public class LatestGUI {
 
     public LatestGUI addCloseButton() {
         setItem(closeSlot, CLOSE_ITEM.build());
+        ignoreBottomRow = true;
         return this;
     }
 
@@ -68,6 +69,7 @@ public class LatestGUI {
 
     public void open(Player player) {
         player.openInventory(inv);
+        LatestGUIManager.inGui.put(player.getUniqueId(), this);
     }
 
     private final Set<Integer> edge = Set.of(
@@ -77,6 +79,10 @@ public class LatestGUI {
     private static final ItemCore CLOSE_ITEM = new ItemCore(Material.BARRIER.toString(),
            "<red><bold>CLOSE", null);
 
-    private static final ItemCore ARROW = new ItemCore(Material.SPECTRAL_ARROW.toString(),
+    public static final ItemCore ARROW = new ItemCore(Material.SPECTRAL_ARROW.toString(),
             " ", null);
+
+    public void setNextPageArrow() {
+        inv.setItem(size - 1, ARROW.build());
+    }
 }

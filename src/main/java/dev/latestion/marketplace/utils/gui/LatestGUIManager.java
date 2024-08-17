@@ -9,11 +9,10 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class LatestGUIManager implements Listener {
 
-    private static final Map<UUID, LatestGUI> inGui = new HashMap<>();
+    public static final Map<UUID, LatestGUI> inGui = new HashMap<>();
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
@@ -21,9 +20,27 @@ public class LatestGUIManager implements Listener {
         if (!inGui.containsKey(player.getUniqueId())) return;
         event.setCancelled(true);
         if (event.getClickedInventory() instanceof PlayerInventory) return;
+        if (event.getCurrentItem() == null) return;
 
         int slot = event.getSlot();
-        Consumer<Player> consumer = inGui.get(player.getUniqueId()).getConsumerMap().get(slot);
+        LatestGUI gui = inGui.get(player.getUniqueId());
+
+        if (gui.getSize() - 1 == slot) {
+            // TODO:
+            return;
+        }
+
+        if (gui.getPaged() != null && gui.getSize() - 9 == slot) {
+            gui.getPaged().open(player);
+            return;
+        }
+
+        if (gui.getCloseSlot() == slot) {
+            player.closeInventory();
+            return;
+        }
+
+        Consumer<Player> consumer = gui.getConsumerMap().get(slot);
 
         if (consumer == null) {
             return;

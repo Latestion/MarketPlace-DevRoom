@@ -5,7 +5,7 @@ import dev.latestion.marketplace.commands.MarketPlaceCmd;
 import dev.latestion.marketplace.commands.SellCmd;
 import dev.latestion.marketplace.manager.Manager;
 import dev.latestion.marketplace.utils.MessageManager;
-import dev.latestion.marketplace.utils.item.Base64ItemStack;
+import dev.latestion.marketplace.utils.gui.LatestGUIManager;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -45,6 +45,8 @@ public final class MarketPlace extends JavaPlugin {
             economy = rsp.getProvider();
         }
 
+        Bukkit.getPluginManager().registerEvents(new LatestGUIManager(), this);
+
         new SellCmd().registerPublicCommand();
         new MarketPlaceCmd().registerPublicCommand();
         new BlackMarketCmd().registerPublicCommand();
@@ -73,14 +75,4 @@ public final class MarketPlace extends JavaPlugin {
         manager.openCorruptShop(player);
     }
 
-    /*
-     * Store transaction history directly in MySQL.
-     *
-     * Store current shop status
-     * Current black market
-     * in redis cache
-     *
-     * onDisable upload cache to mysql and clear it
-     * onEnable load cache from MySQL into cache
-     */
 }
