@@ -15,6 +15,7 @@ import java.util.UUID;
  * MySQL Transaction Data
  */
 public class SqlDatabase {
+
     private Connection connection;
 
     private Connection getConnection() throws SQLException {

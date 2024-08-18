@@ -41,7 +41,7 @@ public abstract class LatestCommand extends BukkitCommand {
             argMap.put(sub.getSub(), sub);
     }
 
-    public abstract void onNoArgs(CommandSender sender);
+    public abstract void onNoArgs(CommandSender sender, String[] args);
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String alias, String[] args) {
@@ -49,13 +49,14 @@ public abstract class LatestCommand extends BukkitCommand {
         boolean isPlayer = sender instanceof Player;
 
         if (args.length == 0) {
-            onNoArgs(sender);
+            onNoArgs(sender, args);
             return true;
         }
 
         LatestSubCommand subCommand = argMap.get(args[0]);
 
         if (subCommand == null) {
+            onNoArgs(sender, args);
             return false;
         }
 

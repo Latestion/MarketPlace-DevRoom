@@ -1,8 +1,6 @@
 package dev.latestion.marketplace;
 
-import dev.latestion.marketplace.commands.BlackMarketCmd;
-import dev.latestion.marketplace.commands.MarketPlaceCmd;
-import dev.latestion.marketplace.commands.SellCmd;
+import dev.latestion.marketplace.commands.*;
 import dev.latestion.marketplace.manager.Manager;
 import dev.latestion.marketplace.utils.MessageManager;
 import dev.latestion.marketplace.utils.gui.LatestGUIManager;
@@ -38,6 +36,7 @@ public final class MarketPlace extends JavaPlugin {
 
         RegisteredServiceProvider<Economy> rsp =
                 Bukkit.getServicesManager().getRegistration(Economy.class);
+
         if (rsp == null) {
             System.out.println("No Eco Found!");
         }
@@ -50,18 +49,19 @@ public final class MarketPlace extends JavaPlugin {
         new SellCmd().registerPublicCommand();
         new MarketPlaceCmd().registerPublicCommand();
         new BlackMarketCmd().registerPublicCommand();
+        new TransactionsCmd().registerPublicCommand();
+        new MPReload().registerPublicCommand();
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-
         manager.getSql().insertItemData(manager.getRedis().getAllItems());
         manager.getRedis().close();
         instance = null;
     }
 
-    private Manager manager;
+    @Getter private Manager manager;
 
     public void handleSell(OfflinePlayer player, ItemStack item, long price) {
         manager.addItem(player, item, price);
@@ -75,4 +75,8 @@ public final class MarketPlace extends JavaPlugin {
         manager.openCorruptShop(player);
     }
 
+    public void reload() {
+        reloadConfig();
+        manager.load();
+    }
 }

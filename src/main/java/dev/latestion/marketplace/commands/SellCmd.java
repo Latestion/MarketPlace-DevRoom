@@ -18,29 +18,30 @@ public class SellCmd extends LatestCommand {
         setUpTabComplete();
     }
 
+
     @Override
-    public boolean execute(@NotNull CommandSender sender, @NotNull String alias, String[] args) {
+    public void onNoArgs(CommandSender sender, String[] args) {
 
         if (!sender.hasPermission(this.getPermission())) {
             MessageManager.sendError(sender, "No permissions to sell!");
-            return true;
+            return;
         }
 
         if (!(sender instanceof Player player)) {
             MessageManager.sendError(sender, "Command can only be ran by a player!");
-            return true;
+            return;
         }
 
         if (args.length == 0) {
             MessageManager.sendError(player, "Invalid arguments: /sell <price>");
-            return true;
+            return;
         }
 
         ItemStack item = player.getInventory().getItemInMainHand();
 
         if (MaterialUtil.isEmptyOrNull(item)) {
             MessageManager.sendError(sender, "Hold the item you want to sell!");
-            return true;
+            return;
         }
 
         long price;
@@ -49,16 +50,9 @@ public class SellCmd extends LatestCommand {
             price = Long.parseLong(args[0]);
         } catch (NumberFormatException e) {
             MessageManager.sendError(sender, "Invalid price: " + args[0]);
-            return true;
+            return;
         }
 
         MarketPlace.get().handleSell(player, item, price);
-
-        return true;
-    }
-
-    @Override
-    public void onNoArgs(CommandSender sender) {
-
     }
 }

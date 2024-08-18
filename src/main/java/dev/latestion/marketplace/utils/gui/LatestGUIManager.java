@@ -9,8 +9,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class LatestGUIManager implements Listener {
 
@@ -32,7 +30,7 @@ public class LatestGUIManager implements Listener {
             return;
         }
 
-        if (gui.getSize() - 9 == slot) {
+        if (gui.getPreviousPage() != null && gui.getSize() - 9 == slot) {
             gui.openPrevious(player);
             return;
         }

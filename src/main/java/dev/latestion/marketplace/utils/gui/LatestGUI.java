@@ -13,8 +13,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class LatestGUI {
 
@@ -22,7 +20,7 @@ public class LatestGUI {
     private final Inventory inv;
 
     @Getter private LatestGUI nextPage;
-    @Setter private LatestGUI previousPage;
+    @Setter @Getter private LatestGUI previousPage;
 
     @Getter private final int size, closeSlot;
 
@@ -63,6 +61,11 @@ public class LatestGUI {
 
     public void setItem(int slot, ItemStack stack) {
         inv.setItem(slot, stack);
+    }
+
+    public void setItem(int slot, ItemStack stack, TriConsumer<Player, Integer, LatestGUI> consumer) {
+        inv.setItem(slot, stack);
+        consumerMap.put(slot, consumer);
     }
 
     public LatestGUI setPaged() {

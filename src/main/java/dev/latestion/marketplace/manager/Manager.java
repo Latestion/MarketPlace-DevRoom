@@ -1,6 +1,7 @@
 package dev.latestion.marketplace.manager;
 
 import dev.latestion.marketplace.MarketPlace;
+import dev.latestion.marketplace.manager.data.ConfirmItem;
 import dev.latestion.marketplace.manager.data.RedisDatabase;
 import dev.latestion.marketplace.manager.data.SqlDatabase;
 import dev.latestion.marketplace.utils.RandomUtil;
@@ -9,12 +10,12 @@ import dev.latestion.marketplace.utils.item.Base64ItemStack;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
 import java.util.UUID;
 
 @Getter
@@ -22,6 +23,7 @@ public class Manager {
 
     private final SqlDatabase sql;
     private final RedisDatabase redis;
+    private final ConfirmItem confirmItem;
 
     public Manager(JavaPlugin plugin) {
 
@@ -31,13 +33,27 @@ public class Manager {
             sql.innitTransactionDatabase();
             sql.innitItemDatabase();
         }
-        catch (SQLException e) {
+        catch (Exception e) {
             System.out.println("SQL Exception: " + e.getMessage());
         }
 
         redis = new RedisDatabase(plugin.getConfig().getString("redis.host"),
                 plugin.getConfig().getInt("redis.port"));
         redis.loadFromSQL(this);
+
+        confirmItem = new ConfirmItem();
+        load();
+    }
+
+    private int CHANCE;
+
+    public void load() {
+
+        FileConfiguration config = MarketPlace.get().getConfig();
+
+        CHANCE = config.getInt("black-market-chance");
+        confirmItem.load(config);
+
     }
 
     private LatestGUI shopGui, corruptShopGui;
@@ -64,40 +80,18 @@ public class Manager {
             innitShop();
         }
 
-        int CHANCE = 10; // TODO:
-        MarketPlace plugin = MarketPlace.get();
         LatestGUI gui = RandomUtil.getChance(CHANCE) ? corruptShopGui : shopGui;
 
         gui.addItem(item, (player, slot, use) -> {
 
-            /*
             if (player.getUniqueId().equals(owner.getUniqueId())) {
                 // TODO: Message
-                return;
-            }
-             */
-
-            if (!plugin.getEconomy().has(player, price)) {
-                // TODO: Message
+                player.closeInventory();
                 return;
             }
 
-            if (player.getInventory().firstEmpty() == -1) {
-                // TODO: Message
-                return;
-            }
-
-            // TODO: Transaction Data!
-
-            plugin.getEconomy().withdrawPlayer(player, price);
-            plugin.getEconomy().depositPlayer(owner, price * (gui.equals(corruptShopGui) ? 2 : 1));
-
-            player.getInventory().addItem(item);
-
-            removeItem(use, slot, itemId);
-
+            confirmItem.handle(player, item, price, owner, gui.equals(corruptShopGui), itemId);
         });
-
 
     }
 

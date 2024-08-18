@@ -19,7 +19,7 @@ public class BlackMarketCmd extends LatestCommand {
     }
 
     @Override
-    public void onNoArgs(CommandSender sender) {
+    public void onNoArgs(CommandSender sender, String[] args) {
 
         if (!sender.hasPermission(this.getPermission())) {
             MessageManager.sendError(sender, "No permissions to view BlackMarket!");

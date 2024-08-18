@@ -16,7 +16,7 @@ public class MarketPlaceCmd extends LatestCommand {
     }
 
     @Override
-    public void onNoArgs(CommandSender sender) {
+    public void onNoArgs(CommandSender sender, String[] args) {
 
         if (!sender.hasPermission(this.getPermission())) {
             MessageManager.sendError(sender, "No permissions to view MarketPlace!");
@@ -27,6 +27,7 @@ public class MarketPlaceCmd extends LatestCommand {
             MessageManager.sendError(sender, "Command can only be ran by a player!");
             return;
         }
+
         MarketPlace.get().handleShop(player);
     }
 }
