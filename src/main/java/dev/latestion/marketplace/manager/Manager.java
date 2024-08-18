@@ -124,8 +124,12 @@ public class Manager {
 
     private void innitShop() {
 
-        shopGui = new LatestGUI(Component.text("SHOP"), 6);
-        corruptShopGui = new LatestGUI(Component.text("CORRUPT SHOP"), 6);
+        FileConfiguration config = MarketPlace.get().getConfig();
+
+        int rows = config.getInt("shop-guis.rows");
+
+        shopGui = new LatestGUI(ChatUtil.translate(config.getString("shop-guis.marketplace-title")), rows);
+        corruptShopGui = new LatestGUI(ChatUtil.translate(config.getString("shop-guis.black-market-title")), rows);
 
     }
 }

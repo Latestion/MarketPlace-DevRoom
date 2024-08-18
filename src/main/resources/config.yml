@@ -31,3 +31,8 @@ confirm-gui:
 item-preview-lore:
   - "Seller: {player}"
   - "Price: {price}"
+
+shop-guis:
+  marketplace-title: "<gold>MARKETPLACE"
+  black-market-title: "<black>BLACK MARKET"
+  rows: 6
