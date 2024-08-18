@@ -1,5 +1,6 @@
 package dev.latestion.marketplace.utils.gui;
 
+import org.apache.logging.log4j.util.TriConsumer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -8,30 +9,31 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class LatestGUIManager implements Listener {
 
-    public static final Map<UUID, LatestGUI> inGui = new HashMap<>();
+    public static final Map<Player, LatestGUI> inGui = new HashMap<>();
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!inGui.containsKey(player.getUniqueId())) return;
+        if (!inGui.containsKey(player)) return;
         event.setCancelled(true);
         if (event.getClickedInventory() instanceof PlayerInventory) return;
         if (event.getCurrentItem() == null) return;
 
         int slot = event.getSlot();
-        LatestGUI gui = inGui.get(player.getUniqueId());
+        LatestGUI gui = inGui.get(player);
 
-        if (gui.getSize() - 1 == slot) {
-            // TODO:
+        if (gui.getNextPage() != null && slot == gui.getSize() - 1) {
+            gui.openNext(player);
             return;
         }
 
-        if (gui.getPaged() != null && gui.getSize() - 9 == slot) {
-            gui.getPaged().open(player);
+        if (gui.getSize() - 9 == slot) {
+            gui.openPrevious(player);
             return;
         }
 
@@ -40,19 +42,20 @@ public class LatestGUIManager implements Listener {
             return;
         }
 
-        Consumer<Player> consumer = gui.getConsumerMap().get(slot);
+        TriConsumer<Player, Integer, LatestGUI> consumer = gui.getConsumerMap().get(slot);
 
         if (consumer == null) {
             return;
         }
 
-        consumer.accept(player);
+        consumer.accept(player, slot, gui);
+
 
     }
 
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
-        inGui.remove(event.getPlayer().getUniqueId());
+        inGui.remove(event.getPlayer());
     }
 
 }

@@ -29,8 +29,6 @@ public class RedisDatabase {
             jedis.hset("market_price", uuid.toString(), String.valueOf(price));
             jedis.hset("market_owner", uuid.toString(), player.toString());
         } catch (Exception e) {
-            System.out.println(itemStack);
-            System.out.println(itemStack.length());
             map.put(uuid, new Tuple<>(player, Base64ItemStack.decode(itemStack), price));
         }
         return uuid;
