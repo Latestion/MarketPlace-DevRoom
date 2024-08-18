@@ -64,6 +64,6 @@ public class SellCmd extends LatestCommand {
         MarketPlace.get().getManager().addItem(player, item.clone(), price);
 
         MessageManager.sendMessage(player, "item-listed", Collections.singletonMap("{item}", MaterialUtil.getName(item)));
-        item.setType(Material.AIR);
+        player.getInventory().setItemInMainHand(null);
     }
 }

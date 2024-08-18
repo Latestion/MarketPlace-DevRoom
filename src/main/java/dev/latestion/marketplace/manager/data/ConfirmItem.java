@@ -20,7 +20,7 @@ public class ConfirmItem implements Listener {
     private ItemCore ACCEPT;
     private ItemCore REJECT;
 
-    private String url, discordMessage;
+    private String url, discordMessage, discordFooter, discordTitle, discordUrl, discordColor;
 
     public void load(FileConfiguration config) {
 
@@ -28,8 +28,11 @@ public class ConfirmItem implements Listener {
         REJECT = new ItemCore("confirm-gui.reject", config);
 
         url = config.getString("webhook.url");
+        discordTitle = config.getString("webhook.title");
         discordMessage = config.getString("webhook.message");
-
+        discordColor = config.getString("webhook.color");
+        discordFooter = config.getString("webhook.footer");
+        discordUrl = config.getString("webhook.image-url");
     }
 
     public void handle(Player player, ItemStack item, long price, OfflinePlayer owner, boolean isCorrupt,
@@ -59,12 +62,12 @@ public class ConfirmItem implements Listener {
 
             String itemName = MaterialUtil.getName(item);
 
-            Schedulers.async(() -> DiscordWebhook.sendWebhook(url, discordMessage
+            Schedulers.async(() -> DiscordWebhook.sendWebhook(url, discordTitle, discordMessage
                     .replace("{player}", player.getName())
                     .replace("{item}", itemName)
                     .replace("{amount}", String.valueOf(item.getAmount()))
                     .replace("{price}", String.valueOf(price))
-                    .replace("{market}", isCorrupt ? "BlackMarket" : "MarketPlace")));
+                    .replace("{market}", isCorrupt ? "BlackMarket" : "MarketPlace"), discordFooter, discordUrl, discordColor));
 
             player.getInventory().addItem(item);
 

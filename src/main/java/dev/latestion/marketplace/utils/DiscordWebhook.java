@@ -10,7 +10,7 @@ import java.util.logging.Level;
 
 public class DiscordWebhook {
 
-    public static void sendWebhook(String webhookUrl, String message) {
+    public static void sendWebhook(String webhookUrl, String title, String description, String footerText, String imageUrl, String color) {
         try {
             URL url = new URL(webhookUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -18,7 +18,21 @@ public class DiscordWebhook {
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
 
-            String jsonPayload = "{\"content\": \"" + message + "\"}";
+            String jsonPayload = "{\n" +
+                    "  \"embeds\": [\n" +
+                    "    {\n" +
+                    "      \"title\": \"" + title + "\",\n" +
+                    "      \"description\": \"" + description + "\",\n" +
+                    "      \"color\": " + color + ",\n" +
+                    "      \"footer\": {\n" +
+                    "        \"text\": \"" + footerText + "\"\n" +
+                    "      },\n" +
+                    "      \"image\": {\n" +
+                    "        \"url\": \"" + imageUrl + "\"\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}";
 
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonPayload.getBytes(StandardCharsets.UTF_8);
@@ -29,8 +43,8 @@ public class DiscordWebhook {
             connection.disconnect();
         }
         catch (Exception e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Something went wrong with Discord Webhooks.");
+            e.printStackTrace();
+            Bukkit.getLogger().log(Level.SEVERE, "Something went wrong with Discord Webhooks.", e);
         }
     }
-
 }
