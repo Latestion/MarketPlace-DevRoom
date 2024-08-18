@@ -2,10 +2,7 @@ package dev.latestion.marketplace.manager.data;
 
 import dev.latestion.marketplace.MarketPlace;
 import dev.latestion.marketplace.manager.Manager;
-import dev.latestion.marketplace.utils.DiscordWebhook;
-import dev.latestion.marketplace.utils.ItemCore;
-import dev.latestion.marketplace.utils.MessageManager;
-import dev.latestion.marketplace.utils.Schedulers;
+import dev.latestion.marketplace.utils.*;
 import dev.latestion.marketplace.utils.gui.LatestGUI;
 import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
@@ -15,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 public class ConfirmItem implements Listener {
@@ -59,7 +57,7 @@ public class ConfirmItem implements Listener {
             plugin.getEconomy().withdrawPlayer(player, price);
             plugin.getEconomy().depositPlayer(owner, price * (isCorrupt ? 2 : 1));
 
-            String itemName = item.getItemMeta().getDisplayName();
+            String itemName = MaterialUtil.getName(item);
 
             // TODO: Test
             Schedulers.async(() -> DiscordWebhook.sendWebhook(url, discordMessage
@@ -82,6 +80,8 @@ public class ConfirmItem implements Listener {
             });
 
             manager.removeItem(remove, slot, itemId);
+            MessageManager.sendMessage(player, "item-bought",
+                    Map.of("{item}", itemName, "{price}", String.valueOf(price)));
 
         });
 

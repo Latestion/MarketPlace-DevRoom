@@ -28,6 +28,6 @@ public class MarketPlaceCmd extends LatestCommand {
             return;
         }
 
-        MarketPlace.get().handleShop(player);
+        MarketPlace.get().getManager().openShop(player);
     }
 }

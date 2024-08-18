@@ -30,6 +30,6 @@ public class BlackMarketCmd extends LatestCommand {
             MessageManager.sendError(sender, "Command can only be ran by a player!");
             return;
         }
-        MarketPlace.get().handleCorruptShop(player);
+        MarketPlace.get().getManager().openCorruptShop(player);
     }
 }

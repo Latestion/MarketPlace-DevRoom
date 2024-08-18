@@ -4,10 +4,13 @@ import dev.latestion.marketplace.MarketPlace;
 import dev.latestion.marketplace.commands.core.LatestCommand;
 import dev.latestion.marketplace.utils.MaterialUtil;
 import dev.latestion.marketplace.utils.MessageManager;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
 
 public class SellCmd extends LatestCommand {
 
@@ -53,6 +56,9 @@ public class SellCmd extends LatestCommand {
             return;
         }
 
-        MarketPlace.get().handleSell(player, item, price);
+        MarketPlace.get().getManager().addItem(player, item.clone(), price);
+
+        MessageManager.sendMessage(player, "item-listed", Collections.singletonMap("{item}", MaterialUtil.getName(item)));
+        item.setType(Material.AIR);
     }
 }

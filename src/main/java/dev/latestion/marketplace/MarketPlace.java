@@ -7,9 +7,6 @@ import dev.latestion.marketplace.utils.gui.LatestGUIManager;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -68,18 +65,6 @@ public final class MarketPlace extends JavaPlugin {
     }
 
     @Getter private Manager manager;
-
-    public void handleSell(OfflinePlayer player, ItemStack item, long price) {
-        manager.addItem(player, item, price);
-    }
-
-    public void handleShop(Player player) {
-        manager.openShop(player);
-    }
-
-    public void handleCorruptShop(Player player) {
-        manager.openCorruptShop(player);
-    }
 
     public void reload() {
         reloadConfig();

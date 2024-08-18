@@ -6,3 +6,5 @@ messages:
   insufficient-funds: "<red>You do not have the sufficient funds to purchase this item!"
   no-transactions: "<red>You do not have any transactions!"
   transaction-format: "<white>{index}. {item} || {quantity} || {price} || {time}"
+  item-listed: "<gold>You listed {item} on the marketplace!"
+  item-bought: "<gold>You bought {item} for {price}."
