@@ -10,6 +10,7 @@ redis:
   port: "6379"
 
 black-market-chance: 10
+self-buy: true
 
 webhook:
   url: "https://discord.com/api/webhooks/1274624946949197906/63UlmNH6KLKD7lxEz0gQlT8d_CGbNXJ3M6tG__FJT5pZOizKt0mZnhD0WtKcts3xRfCD"

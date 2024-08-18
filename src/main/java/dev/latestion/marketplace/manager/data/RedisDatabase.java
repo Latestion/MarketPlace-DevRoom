@@ -16,7 +16,7 @@ import java.util.UUID;
 public class RedisDatabase {
 
     private final JedisPool jedisPool;
-    private Map<UUID, Tuple<UUID, ItemStack, Long>> map = new HashMap<>();
+    private final Map<UUID, Tuple<UUID, ItemStack, Long>> map = new HashMap<>();
 
     public RedisDatabase(String host, int port) {
         this.jedisPool = new JedisPool(new JedisPoolConfig(), host, port);

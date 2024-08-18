@@ -4,11 +4,13 @@ import dev.latestion.marketplace.MarketPlace;
 import dev.latestion.marketplace.manager.data.ConfirmItem;
 import dev.latestion.marketplace.manager.data.RedisDatabase;
 import dev.latestion.marketplace.manager.data.SqlDatabase;
+import dev.latestion.marketplace.utils.MessageManager;
 import dev.latestion.marketplace.utils.RandomUtil;
 import dev.latestion.marketplace.utils.gui.LatestGUI;
 import dev.latestion.marketplace.utils.item.Base64ItemStack;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -17,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.logging.Level;
 
 @Getter
 public class Manager {
@@ -30,11 +33,11 @@ public class Manager {
         sql = new SqlDatabase();
 
         try {
-            sql.innitTransactionDatabase();
+            sql.initTransactionDatabase();
             sql.innitItemDatabase();
         }
         catch (Exception e) {
-            System.out.println("SQL Exception: " + e.getMessage());
+            Bukkit.getLogger().log(Level.SEVERE, "Could not connect to SQL: " + e.getMessage());
         }
 
         redis = new RedisDatabase(plugin.getConfig().getString("redis.host"),
@@ -46,12 +49,14 @@ public class Manager {
     }
 
     private int CHANCE;
+    private boolean selfBuy;
 
     public void load() {
 
         FileConfiguration config = MarketPlace.get().getConfig();
 
         CHANCE = config.getInt("black-market-chance");
+        selfBuy = config.getBoolean("self-buy");
         confirmItem.load(config);
 
     }
@@ -84,13 +89,13 @@ public class Manager {
 
         gui.addItem(item, (player, slot, use) -> {
 
-            if (player.getUniqueId().equals(owner.getUniqueId())) {
-                // TODO: Message
+            if (!selfBuy && player.getUniqueId().equals(owner.getUniqueId())) {
+                MessageManager.sendMessage(player, "self-buy");
                 player.closeInventory();
                 return;
             }
 
-            confirmItem.handle(player, item, price, owner, gui.equals(corruptShopGui), itemId);
+            confirmItem.handle(player, item, price, owner, gui.equals(corruptShopGui), itemId, slot, use);
         });
 
     }
@@ -104,5 +109,6 @@ public class Manager {
 
         shopGui = new LatestGUI(Component.text("SHOP"), 6);
         corruptShopGui = new LatestGUI(Component.text("CORRUPT SHOP"), 6);
+
     }
 }

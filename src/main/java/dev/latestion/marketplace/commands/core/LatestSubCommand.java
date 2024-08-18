@@ -23,7 +23,6 @@ public abstract class LatestSubCommand {
         this.command = command;
         this.sub = sub;
         this.playerCommand = playerCommand;
-        System.out.println("Registered " + sub);
     }
 
     public void onCommand(@NotNull CommandSender sender, @NotNull String[] args) {

@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.logging.Level;
+
 public final class MarketPlace extends JavaPlugin {
 
     private static MarketPlace instance;
@@ -38,7 +40,9 @@ public final class MarketPlace extends JavaPlugin {
                 Bukkit.getServicesManager().getRegistration(Economy.class);
 
         if (rsp == null) {
-            System.out.println("No Eco Found!");
+            Bukkit.getLogger().log(Level.SEVERE, "No Eco Found!");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
         }
         else {
             economy = rsp.getProvider();
@@ -57,6 +61,8 @@ public final class MarketPlace extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         manager.getSql().insertItemData(manager.getRedis().getAllItems());
+        manager.getSql().cancel();
+        manager.getSql().run();
         manager.getRedis().close();
         instance = null;
     }

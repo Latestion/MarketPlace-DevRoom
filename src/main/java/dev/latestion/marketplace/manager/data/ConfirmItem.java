@@ -1,8 +1,10 @@
 package dev.latestion.marketplace.manager.data;
 
 import dev.latestion.marketplace.MarketPlace;
+import dev.latestion.marketplace.manager.Manager;
 import dev.latestion.marketplace.utils.DiscordWebhook;
 import dev.latestion.marketplace.utils.ItemCore;
+import dev.latestion.marketplace.utils.MessageManager;
 import dev.latestion.marketplace.utils.Schedulers;
 import dev.latestion.marketplace.utils.gui.LatestGUI;
 import net.kyori.adventure.text.Component;
@@ -12,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class ConfirmItem implements Listener {
@@ -32,45 +35,57 @@ public class ConfirmItem implements Listener {
     }
 
     public void handle(Player player, ItemStack item, long price, OfflinePlayer owner, boolean isCorrupt,
-                       UUID itemId) {
+                       UUID itemId, int slot, LatestGUI remove) {
 
         MarketPlace plugin = MarketPlace.get();
         LatestGUI gui = new LatestGUI(Component.text(""), 3);
 
-        gui.setItem(11, ACCEPT.build(), (p, slot, use) -> {
-
+        gui.setItem(11, ACCEPT.build(), (p, ignore, use) -> {
 
             if (!plugin.getEconomy().has(player, price)) {
-                // TODO: Message
+                MessageManager.sendMessage(player, "insufficient-funds");
                 player.closeInventory();
                 return;
             }
 
             if (player.getInventory().firstEmpty() == -1) {
-                // TODO: Message
+                MessageManager.sendMessage(player, "inventory-full");
                 player.closeInventory();
                 return;
             }
 
-            // TODO: Transaction Data!
             player.closeInventory();
+
             plugin.getEconomy().withdrawPlayer(player, price);
             plugin.getEconomy().depositPlayer(owner, price * (isCorrupt ? 2 : 1));
+
+            String itemName = item.getItemMeta().getDisplayName();
 
             // TODO: Test
             Schedulers.async(() -> DiscordWebhook.sendWebhook(url, discordMessage
                     .replace("{player}", player.getName())
-                    .replace("{item}", item.getItemMeta().getDisplayName())
+                    .replace("{item}", itemName)
                     .replace("{amount}", String.valueOf(item.getAmount()))
                     .replace("{price}", String.valueOf(price))
                     .replace("{market}", isCorrupt ? "BlackMarket" : "MarketPlace")));
 
             player.getInventory().addItem(item);
-            plugin.getManager().removeItem(use, slot, itemId);
+
+            Manager manager = plugin.getManager();
+
+            Schedulers.async(() -> {
+                try {
+                    manager.getSql().addTransaction(player.getUniqueId(), item.getAmount(),
+                            price, LocalDateTime.now(), itemName);
+                }
+                catch (Exception ignored) {}
+            });
+
+            manager.removeItem(remove, slot, itemId);
 
         });
 
-        gui.setItem(15, REJECT.build(), (p, slot, use) -> p.closeInventory());
+        gui.setItem(15, REJECT.build(), (p, ignore, use) -> p.closeInventory());
         gui.setItem(4, item);
 
         gui.open(player);
