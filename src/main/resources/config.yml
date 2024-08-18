@@ -27,3 +27,7 @@ confirm-gui:
     material: "RED_STAINED_GLASS_PANE"
     lore:
       - ' '
+
+item-preview-lore:
+  - "Seller: {player}"
+  - "Price: {price}"

@@ -75,7 +75,7 @@ public class RedisDatabase {
 
     public void loadFromSQL(Manager manager) {
         manager.getSql().getAllItems().forEach((uuid, tuple) ->
-               manager.addItem(Bukkit.getOfflinePlayer(uuid), Base64ItemStack.decode(tuple.b())
+               manager.addItem(Bukkit.getOfflinePlayer(tuple.a()), Base64ItemStack.decode(tuple.b())
                        , tuple.c()));
         manager.getSql().clearItemDatabase();
     }

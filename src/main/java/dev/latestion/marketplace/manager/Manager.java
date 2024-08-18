@@ -4,20 +4,26 @@ import dev.latestion.marketplace.MarketPlace;
 import dev.latestion.marketplace.manager.data.ConfirmItem;
 import dev.latestion.marketplace.manager.data.RedisDatabase;
 import dev.latestion.marketplace.manager.data.SqlDatabase;
+import dev.latestion.marketplace.utils.ChatUtil;
+import dev.latestion.marketplace.utils.MaterialUtil;
 import dev.latestion.marketplace.utils.MessageManager;
 import dev.latestion.marketplace.utils.RandomUtil;
 import dev.latestion.marketplace.utils.gui.LatestGUI;
 import dev.latestion.marketplace.utils.item.Base64ItemStack;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -42,16 +48,17 @@ public class Manager {
             return;
         }
 
+        confirmItem = new ConfirmItem();
+        load();
+
         redis = new RedisDatabase(plugin.getConfig().getString("redis.host"),
                 plugin.getConfig().getInt("redis.port"));
         redis.loadFromSQL(this);
-
-        confirmItem = new ConfirmItem();
-        load();
     }
 
     private int CHANCE;
     private boolean selfBuy;
+    private List<Component> PREVIEW_LORE;
 
     public void load() {
 
@@ -60,6 +67,8 @@ public class Manager {
         CHANCE = config.getInt("black-market-chance");
         selfBuy = config.getBoolean("self-buy");
         confirmItem.load(config);
+
+        PREVIEW_LORE = ChatUtil.translate(config.getStringList("item-preview-lore"));
 
     }
 
@@ -89,7 +98,13 @@ public class Manager {
 
         LatestGUI gui = RandomUtil.getChance(CHANCE) ? corruptShopGui : shopGui;
 
-        gui.addItem(item, (player, slot, use) -> {
+        ItemStack modified = MaterialUtil.addLore(item.clone(), PREVIEW_LORE.stream()
+                .map(c -> c.replaceText(TextReplacementConfig.builder()
+                        .matchLiteral("{player}").replacement(owner.getName()).build())
+                    .replaceText(TextReplacementConfig.builder()
+                            .matchLiteral("{price}").replacement(String.valueOf(price)).build())).toList());
+
+        gui.addItem(modified, (player, slot, use) -> {
 
             if (!selfBuy && player.getUniqueId().equals(owner.getUniqueId())) {
                 MessageManager.sendMessage(player, "self-buy");
