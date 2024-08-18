@@ -56,6 +56,11 @@ public class SellCmd extends LatestCommand {
             return;
         }
 
+        if (price <= 0) {
+            MessageManager.sendMessage(player, "invalid-price");
+            return;
+        }
+
         MarketPlace.get().getManager().addItem(player, item.clone(), price);
 
         MessageManager.sendMessage(player, "item-listed", Collections.singletonMap("{item}", MaterialUtil.getName(item)));

@@ -25,8 +25,8 @@ import java.util.logging.Level;
 public class Manager {
 
     private final SqlDatabase sql;
-    private final RedisDatabase redis;
-    private final ConfirmItem confirmItem;
+    private RedisDatabase redis;
+    private ConfirmItem confirmItem;
 
     public Manager(JavaPlugin plugin) {
 
@@ -38,6 +38,8 @@ public class Manager {
         }
         catch (Exception e) {
             Bukkit.getLogger().log(Level.SEVERE, "Could not connect to SQL: " + e.getMessage());
+            Bukkit.getPluginManager().disablePlugin(MarketPlace.get());
+            return;
         }
 
         redis = new RedisDatabase(plugin.getConfig().getString("redis.host"),

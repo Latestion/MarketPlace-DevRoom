@@ -12,6 +12,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class RedisDatabase {
 

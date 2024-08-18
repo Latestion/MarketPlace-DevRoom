@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.logging.Level;

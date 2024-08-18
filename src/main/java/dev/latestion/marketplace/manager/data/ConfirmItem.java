@@ -59,7 +59,6 @@ public class ConfirmItem implements Listener {
 
             String itemName = MaterialUtil.getName(item);
 
-            // TODO: Test
             Schedulers.async(() -> DiscordWebhook.sendWebhook(url, discordMessage
                     .replace("{player}", player.getName())
                     .replace("{item}", itemName)

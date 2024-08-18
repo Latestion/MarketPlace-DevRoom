@@ -57,10 +57,12 @@ public final class MarketPlace extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        manager.getSql().insertItemData(manager.getRedis().getAllItems());
-        manager.getSql().cancel();
-        manager.getSql().run();
-        manager.getRedis().close();
+        if (manager != null) {
+            manager.getSql().insertItemData(manager.getRedis().getAllItems());
+            manager.getSql().cancel();
+            manager.getSql().run();
+            manager.getRedis().close();
+        }
         instance = null;
     }
 

@@ -8,3 +8,4 @@ messages:
   transaction-format: "<white>{index}. {item} || {quantity} || {price} || {time}"
   item-listed: "<gold>You listed {item} on the marketplace!"
   item-bought: "<gold>You bought {item} for {price}."
+  invalid-price: "<red>Price cannot be lower or equal to 0!"
